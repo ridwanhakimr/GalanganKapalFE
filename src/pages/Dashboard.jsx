@@ -11,12 +11,17 @@ const Dashboard = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [pendingCount, setPendingCount] = useState(0);
   const [myRequestsCount, setMyRequestsCount] = useState(0);
+  const [lowStockItems, setLowStockItems] = useState([]);
 
   useEffect(() => {
     const loadDashboardStats = async () => {
       try {
         const items = await getItems();
         setTotalItems(items.length);
+        
+        // Find Low Stock Items
+        const lowStocks = items.filter(item => item.Quantity <= item.MinStock);
+        setLowStockItems(lowStocks);
 
         const requests = await getRequests();
         
@@ -67,7 +72,29 @@ const Dashboard = () => {
       <main className="flex-1">
         <div className="mx-auto max-w-7xl py-8 px-4 sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-slate-900">Halo, {user.name}!</h2>
-          <p className="mt-1 text-slate-500 mb-8">Pilih modul untuk mulai mengelola operasional kapal Anda hari ini.</p>
+          <p className="mt-1 text-slate-500 mb-6">Pilih modul untuk mulai mengelola operasional kapal Anda hari ini.</p>
+
+          {/* Low Stock Alert Panel (Supervisor & Admin Only) */}
+          {(user.role === 'Admin' || user.role === 'Supervisor') && lowStockItems.length > 0 && (
+            <div className="mb-8 p-5 bg-red-50 border border-red-200 rounded-xl shadow-sm animate-fade-in">
+              <h3 className="text-red-800 font-bold text-lg mb-2 flex items-center gap-2">
+                <ShieldCheck size={20} /> 🚨 Peringatan: {lowStockItems.length} Barang Stok Menipis!
+              </h3>
+              <p className="text-sm text-red-600 mb-3">Beberapa barang penting telah mencapai atau berada di bawah batas minimum stok. Harap segera lakukan restock untuk menghindari berhentinya operasional.</p>
+              <div className="flex flex-wrap gap-2">
+                {lowStockItems.slice(0, 5).map(item => (
+                  <span key={item.ID} className="bg-red-100 text-red-700 text-xs px-3 py-1 rounded-full font-medium border border-red-200 shadow-sm">
+                    {item.Name} (Sisa: {item.Quantity})
+                  </span>
+                ))}
+                {lowStockItems.length > 5 && (
+                  <span className="bg-red-100 text-red-700 text-xs px-3 py-1 rounded-full font-medium border border-red-200 shadow-sm">
+                    + {lowStockItems.length - 5} lainnya
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             
@@ -114,15 +141,37 @@ const Dashboard = () => {
             )}
 
             {user.role === 'Admin' && (
-              <Link to="/audit" className="block outline-none hover:-translate-y-1 transition-transform">
-                <div className="overflow-hidden rounded-xl bg-slate-800 border border-slate-700 shadow-md p-6 flex flex-col h-full">
-                  <div className="p-3 bg-slate-700 w-fit text-cyan-400 rounded-lg mb-4"><ActivitySquare size={24} /></div>
-                  <div className="mt-auto">
-                    <p className="text-slate-300 font-medium text-sm">Jejak Audit Sistem</p>
-                    <p className="text-xl font-mono text-cyan-400 mt-1">LOGS.CHK</p>
+              <>
+                <Link to="/audit" className="block outline-none hover:-translate-y-1 transition-transform">
+                  <div className="overflow-hidden rounded-xl bg-slate-800 border border-slate-700 shadow-md p-6 flex flex-col h-full">
+                    <div className="p-3 bg-slate-700 w-fit text-cyan-400 rounded-lg mb-4"><ActivitySquare size={24} /></div>
+                    <div className="mt-auto">
+                      <p className="text-slate-300 font-medium text-sm">Jejak Audit Sistem</p>
+                      <p className="text-xl font-mono text-cyan-400 mt-1">LOGS.CHK</p>
+                    </div>
                   </div>
-                </div>
-              </Link>
+                </Link>
+
+                <Link to="/master-data" className="block outline-none hover:-translate-y-1 transition-transform">
+                  <div className="overflow-hidden rounded-xl bg-teal-800 border border-teal-700 shadow-md p-6 flex flex-col h-full">
+                    <div className="p-3 bg-teal-700 w-fit text-teal-300 rounded-lg mb-4"><Package size={24} /></div>
+                    <div className="mt-auto">
+                      <p className="text-teal-200 font-medium text-sm">Pengaturan Dasar</p>
+                      <p className="text-xl font-bold text-white mt-1">Master Data</p>
+                    </div>
+                  </div>
+                </Link>
+
+                <Link to="/ledger" className="block outline-none hover:-translate-y-1 transition-transform">
+                  <div className="overflow-hidden rounded-xl bg-rose-800 border border-rose-700 shadow-md p-6 flex flex-col h-full">
+                    <div className="p-3 bg-rose-700 w-fit text-rose-300 rounded-lg mb-4"><ClipboardList size={24} /></div>
+                    <div className="mt-auto">
+                      <p className="text-rose-200 font-medium text-sm">Arus Transaksi</p>
+                      <p className="text-xl font-bold text-white mt-1">Buku Besar</p>
+                    </div>
+                  </div>
+                </Link>
+              </>
             )}
 
           </div>

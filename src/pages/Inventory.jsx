@@ -67,8 +67,6 @@ const Inventory = () => {
     }
   };
 
-
-
   const getAPIUrl = (path) => {
     if (!path) return null;
     return `http://localhost:3000${path}`;
@@ -79,22 +77,24 @@ const Inventory = () => {
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-slate-800">Manajemen Inventaris</h1>
-          {user.role === 'Admin' && (
-            <button 
-              onClick={() => setShowAddForm(!showAddForm)}
-              className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
-            >
-              <PackagePlus size={18} /> Tambah Barang
-            </button>
-          )}
-          {(user.role === 'Staff' || user.role === 'Admin') && (
-            <button 
-              onClick={() => setShowDropdownRequestForm(true)}
-              className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition"
-            >
-              <Hand size={18} /> Form Request Barang
-            </button>
-          )}
+          <div className="flex gap-2">
+            {user.role === 'Admin' && (
+              <button 
+                onClick={() => setShowAddForm(!showAddForm)}
+                className="flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition"
+              >
+                <PackagePlus size={18} /> Tambah Barang
+              </button>
+            )}
+            {(user.role === 'Staff' || user.role === 'Admin') && (
+              <button 
+                onClick={() => setShowDropdownRequestForm(true)}
+                className="flex items-center gap-2 bg-emerald-600 text-white px-4 py-2 rounded-lg hover:bg-emerald-700 transition"
+              >
+                <Hand size={18} /> Form Request Barang
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Global Notifications */}
@@ -109,7 +109,7 @@ const Inventory = () => {
           </div>
         )}
 
-        {/* Admin Form */}
+        {/* Admin Add Item Form */}
         {showAddForm && user.role === 'Admin' && (
           <form onSubmit={handleAddItem} className="bg-white p-6 rounded-xl shadow-sm border border-slate-200 mb-8 max-w-2xl">
             <h2 className="text-lg font-semibold mb-4 text-slate-800">Form Tambah Barang Baru</h2>
@@ -122,6 +122,13 @@ const Inventory = () => {
                 <select required onChange={e=>setNewItem({...newItem, warehouse_id: e.target.value})} className="w-full p-2 border rounded">
                   <option value="">-- Pilih --</option>
                   {warehouses.map(w => <option key={w.ID} value={w.ID}>{w.Name}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="block text-sm mb-1">Kategori Barang (Opsional)</label>
+                <select onChange={e=>setNewItem({...newItem, category_id: e.target.value})} className="w-full p-2 border rounded">
+                  <option value="">-- Pilih Kategori --</option>
+                  {categories.map(c => <option key={c.ID} value={c.ID}>{c.Name}</option>)}
                 </select>
               </div>
               <div className="col-span-2">
@@ -186,7 +193,14 @@ const Inventory = () => {
                     <h3 className="font-bold text-lg text-slate-800 line-clamp-1">{item.Name}</h3>
                     <span className="text-xs bg-slate-100 px-2 py-1 rounded text-slate-500 border border-slate-200">{item.SKU}</span>
                   </div>
-                  <p className="text-sm text-slate-500 mb-4">{item.Warehouse?.Name || 'Gudang Pusat'}</p>
+                  <div className="flex gap-2 items-center mb-4">
+                    <p className="text-sm text-slate-500">{item.Warehouse?.Name || 'Gudang Pusat'}</p>
+                    {item.Category && (
+                      <span className="bg-indigo-50 text-indigo-700 border border-indigo-200 text-xs px-2 py-0.5 rounded font-medium">
+                        {item.Category.Name}
+                      </span>
+                    )}
+                  </div>
                   
                   <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between">
                     <div>

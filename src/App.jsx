@@ -9,6 +9,8 @@ import Dashboard from './pages/Dashboard';
 import Inventory from './pages/Inventory';
 import ApprovalPage from './pages/ApprovalPage';
 import AuditLogPage from './pages/AuditLogPage';
+import MasterData from './pages/MasterData';
+import StockLedger from './pages/StockLedger';
 
 const Unauthorized = () => (
   <div className="flex h-screen items-center justify-center bg-gray-100">
@@ -44,6 +46,8 @@ const AppRoutes = () => {
           {/* Admin Only */}
           <Route element={<RoleBasedRoute allowedRoles={['Admin']} />}>
             <Route path="/audit" element={<AuditLogPage />} />
+            <Route path="/master-data" element={<MasterData />} />
+            <Route path="/ledger" element={<StockLedger />} />
           </Route>
 
         </Route>
